@@ -42,15 +42,19 @@ let enemyBullets = [];
 let enemies = [];
 let enemyDir = 1;
 let enemySpeed = 1;
+  let lastShot = 0;
+const shootCooldown = 150; // milliseconds between shots
 
 const keys = {};
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
-  if (e.code === 'Space' && !gameOver) shoot();
+
+  if (e.code === 'Space') e.preventDefault();
+
   if (e.code === 'KeyR' && gameOver) resetGame();
 });
-document.addEventListener('keyup', e => keys[e.code] = false);
 
+document.addEventListener('keyup', e => keys[e.code] = false);
 function initEnemies() {
   enemies = [];
   for (let row = 0; row < 4; row++) {
@@ -86,6 +90,11 @@ function resetGame() {
 
 function update() {
   if (gameOver) return;
+  // Hold space to shoot rapidly
+if (keys['Space'] && Date.now() - lastShot >= shootCooldown) {
+  shoot();
+  lastShot = Date.now();
+}
 
   // Player movement
   if (keys['ArrowLeft'] && player.x > 10) player.x -= player.speed;
